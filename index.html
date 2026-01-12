@@ -11,26 +11,66 @@
 <body>
     <header>
         <h1>🏫 6학년 우리반 홈페이지</h1>
-        <nav>
+        <nav id="nav-links">
             <a href="index.html">홈</a>
             <a href="login.html">로그인</a>
             <a href="signup.html">회원가입</a>
         </nav>
+        <div id="user-info" style="margin-top: 10px; font-weight: bold; display: none;">
+            <span id="user-name"></span>님 환영합니다! 
+            <button id="logout-btn" style="margin-left:10px; cursor:pointer; padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc;">로그아웃</button>
+        </div>
     </header>
 
     <main>
         <section class="notice-section">
             <h2>📢 오늘의 가정통신문</h2>
-            <ul class="notice-list">
-                <li><span class="date">2024-05-20</span> [공지] 이번 주 금요일 현장체험학습 안내</li>
-                <li><span class="date">2024-05-18</span> [안내] 1인 1역할 분담 결과 확인하세요</li>
-                <li><span class="date">2024-05-15</span> [알림] 다음 주 받아쓰기 범위 (10~12단원)</li>
+            <ul class="notice-list" id="notice-list">
+                <li>가정통신문을 불러오는 중...</li>
             </ul>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2024 우리반 선생님과 아이들</p>
+        <p>&copy; 2025 우리반 선생님과 아이들</p>
     </footer>
+
+    <script type="module">
+        import { auth, db } from './firebase-init.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 로그인 상태 확인 및 UI 변경
+        onAuthStateChanged(auth, (user) => {
+            const navLinks = document.getElementById('nav-links');
+            const userInfo = document.getElementById('user-info');
+            if (user) {
+                navLinks.style.display = 'none';
+                userInfo.style.display = 'block';
+                const isAdmin = user.email === 'admin@homepage-971ca.local';
+                document.getElementById('user-name').innerText = isAdmin ? '관리자' : user.email.split('@')[0];
+            } else {
+                navLinks.style.display = 'block';
+                userInfo.style.display = 'none';
+            }
+        });
+
+        // 로그아웃 기능
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+        // Firestore에서 가정통신문 목록 가져오기
+        async function loadNotices() {
+            const noticeList = document.getElementById('notice-list');
+            const q = query(collection(db, "notices"), orderBy("date", "desc"));
+            const querySnapshot = await getDocs(q);
+            noticeList.innerHTML = '';
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                noticeList.innerHTML += `<li><span class="date">${data.date}</span> ${data.title}</li>`;
+            });
+            if (querySnapshot.empty) noticeList.innerHTML = '<li>등록된 가정통신문이 없습니다.</li>';
+        }
+        loadNotices();
+    </script>
 </body>
 </html>

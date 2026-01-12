@@ -10,6 +10,7 @@
 ## 🛠 사용 기술
 - HTML5
 - CSS3 (Flexbox, Media Queries)
+- Google Firebase (Authentication, Firestore)
 - Google Fonts (Nanum Gothic)
 
 ## 🚀 시작하기

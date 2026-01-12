@@ -13,13 +13,36 @@
     </header>
     <main>
         <div class="form-container">
-            <form>
-                <input type="text" placeholder="아이디" required>
-                <input type="password" placeholder="비밀번호" required>
+            <form id="login-form">
+                <input type="text" id="email" placeholder="아이디 또는 이메일" required>
+                <input type="password" id="password" placeholder="비밀번호" required>
                 <button type="submit" class="btn-submit">로그인</button>
             </form>
             <p style="margin-top:15px;">계정이 없나요? <a href="signup.html">회원가입</a></p>
         </div>
     </main>
+
+    <script type="module">
+        import { auth } from './firebase-init.js';
+        import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // admin 입력 시 관리자 이메일로 변환
+            if (email === 'admin') email = 'admin@homepage-971ca.local';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                alert("로그인 성공!");
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert("로그인 실패: " + error.message);
+            }
+        });
+    </script>
 </body>
 </html>

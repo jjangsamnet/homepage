@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 계정 초기 설정</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-container">
+        <h2>🛠 관리자 계정 생성</h2>
+        <p>이 페이지는 관리자 계정을 처음 만들 때만 사용하세요.</p>
+        <button id="setup-admin-btn" class="btn-submit">관리자 계정(admin) 생성하기</button>
+        <p id="status-msg" style="margin-top:10px;"></p>
+        <nav><a href="index.html">홈으로 가기</a></nav>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase-init.js';
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        document.getElementById('setup-admin-btn').addEventListener('click', async () => {
+            const adminEmail = 'admin@homepage-971ca.local';
+            const adminPassword = '123456'; // 파이어베이스 최소 6자리
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, adminEmail, adminPassword);
+                await setDoc(doc(db, "users", userCredential.user.uid), { 
+                    name: "관리자", 
+                    email: adminEmail,
+                    role: "admin"
+                });
+                document.getElementById('status-msg').innerText = "관리자 계정 생성 성공! 이제 admin / 123456으로 로그인하세요.";
+            } catch (error) {
+                document.getElementById('status-msg').innerText = "오류: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
